@@ -1,0 +1,62 @@
+# Production Requirements Only
+# Excludes development dependencies for smaller Docker image
+# ─── Web Framework ────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+gunicorn==21.2.0
+python-multipart==0.0.12
+httpx==0.28.1
+
+# ─── Pydantic / Settings ──────────────────────────────────────────
+pydantic==2.10.3
+pydantic-settings==2.6.1
+email-validator==2.2.0
+
+# ─── Async / Database ─────────────────────────────────────────────
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+asyncpg==0.30.0          # PostgreSQL async driver
+redis==5.2.1             # Redis for rate limiting + cache
+aiofiles==24.1.0
+
+# ─── AI / Computer Vision ─────────────────────────────────────────
+ultralytics==8.3.53      # YOLOv8
+opencv-python-headless==4.10.0.84
+mediapipe==0.10.18
+torch==2.5.1
+torchvision==0.20.1
+numpy==1.26.4
+Pillow==11.0.0
+
+# ─── Firebase / Cloud ─────────────────────────────────────────────
+firebase-admin==6.6.0
+google-cloud-storage==2.19.0
+
+# ─── Notifications ───────────────────────────────────────────────
+twilio==9.4.3            # SMS + WhatsApp
+python-firebase-admin==0.2.1
+
+# ─── Auth / Security ──────────────────────────────────────────────
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+cryptography==44.0.0
+
+# ─── Logging / Monitoring ─────────────────────────────────────────
+structlog==24.4.0
+python-json-logger==2.0.7
+prometheus-client==0.21.1
+sentry-sdk[fastapi]==2.19.2
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-fastapi==0.50b0
+
+# ─── Task Queue ───────────────────────────────────────────────────
+celery[redis]==5.4.0
+kombu==5.4.2
+
+# ─── Utils ────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+tenacity==9.0.0          # retry logic
+orjson==3.10.13          # fast JSON
+pendulum==3.0.0          # datetime handling
+shortuuid==1.0.13
+cachetools==5.5.0

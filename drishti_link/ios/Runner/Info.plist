@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- ══════════════════════════════════════════════════════════
+	     Drishti-Link — iOS Info.plist
+	     AI Navigation for the Visually Impaired
+	     ══════════════════════════════════════════════════════════ -->
+
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>Drishti-Link</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>drishti_link</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+
+	<!-- Accessibility / Privacy permissions -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Drishti listens to your voice commands to navigate the app hands-free.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Drishti uses speech recognition so you can say "Agla", "Shuru karo" and other voice commands.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Drishti-Link uses your location to provide real-time navigation guidance.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Drishti-Link uses background location to keep your guardian updated even when the screen is off.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Drishti uses your camera to detect obstacles and hazards ahead of you.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Drishti-Link uses Face ID to let you log in quickly and securely without looking at the screen.</string>
+
+	<!-- Orientation — portrait only for consistent UX -->
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+
+	<!-- Accessibility -->
+	<key>UIAccessibilityTraits</key>
+	<string>UIAccessibilityTraitAllowsDirectInteraction</string>
+
+	<!-- Status bar -->
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+
+	<!-- Launch screen -->
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+
+	<!-- Flutter -->
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+</dict>
+</plist>

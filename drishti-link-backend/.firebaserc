@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "drishti-link",
+    "production": "drishti-link",
+    "development": "drishti-link-dev"
+  }
+}

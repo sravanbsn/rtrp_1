@@ -1,0 +1,84 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+docs
+*.md
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Firebase credentials (should be in environment)
+firebase-service-account.json
+google-services.json
+GoogleService-Info.plist
+
+# Model files (too large for container)
+ml/models/*.pt
+*.pt
+*.onnx
+*.trt
+
+# Development files
+docker-compose.yml
+docker-compose.override.yml
+.Dockerfile
+dockerfile.local

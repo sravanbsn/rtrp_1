@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Drishti-Link color palette for Android native screens -->
+
+    <!-- Primary: Deep navy -->
+    <color name="navy_deep">#FF050A1E</color>
+    <color name="navy_mid">#FF0A0E2E</color>
+    <color name="navy_card">#FF1A2050</color>
+
+    <!-- Accent: Saffron -->
+    <color name="saffron">#FFFF9933</color>
+    <color name="saffron_light">#FFFFB366</color>
+
+    <!-- Text -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="text_secondary">#FFB0B8D4</color>
+
+    <!-- Status bar color (must match LaunchTheme) -->
+    <color name="launch_background">#FF050A1E</color>
+    <color name="normal_background">#FF0A0E2E</color>
+</resources>

@@ -1,0 +1,19 @@
+
+# Firebase Configs
+firebase-service-account.json
+google-services.json
+GoogleService-Info.plist
+
+# Environment Variables
+.env
+.env.local
+.env.production
+.env.development
+
+# Sensitive Files
+*.key
+*.pem
+*.p12
+*.json
+!package.json
+!tsconfig.json

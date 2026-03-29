@@ -1,0 +1,123 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper Functions ─────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      // Assuming custom claim 'admin' is set via Firebase Admin SDK
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function isGuardianForUser(userId) {
+      // Check if the current user exists in the guardians collection 
+      // and is linked to the requested userId.
+      // (Requires a specific guardian document structure or query, 
+      // but simpler for now: query users collection if role is guardian etc.)
+      // For strict production: 
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/guardians/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/guardians/$(request.auth.uid)).data.user_id == userId;
+    }
+
+    // ── Users Collection ─────────────────────────────────────────────────────
+
+    match /users/{userId} {
+      // Users can read/write their own data
+      allow read, write: if isUser(userId) || isAdmin();
+      
+      // Guardians can read the profile and settings of their linked user
+      allow read: if isGuardianForUser(userId);
+
+      // Subcollections under user
+      match /adaptive_profile/{document=**} {
+        allow read: if isUser(userId) || isGuardianForUser(userId) || isAdmin();
+        // Adaptive profile shouldn't be mutated securely from client, 
+        // but users might need write access for initial setup or explicit resets.
+        // Ideally backend-only, but let's allow user read/write.
+        allow write: if isUser(userId) || isAdmin();
+      }
+      
+      match /settings/{document=**} {
+        allow read, write: if isUser(userId) || isAdmin();
+        allow read: if isGuardianForUser(userId);
+      }
+    }
+
+    // ── Guardians Collection ─────────────────────────────────────────────────
+
+    match /guardians/{guardianId} {
+      // Guardians can read/write their own profiles
+      allow read, write: if isUser(guardianId) || isAdmin();
+      
+      // A generic user cannot read guardian profiles unless needed
+    }
+
+    // ── Sessions Collection ──────────────────────────────────────────────────
+
+    match /sessions/{sessionId} {
+      // Sessions are created/updated by the backend/user
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow read, update: if isSignedIn() && (
+        resource.data.user_id == request.auth.uid || 
+        isGuardianForUser(resource.data.user_id) || 
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── Alerts Collection ────────────────────────────────────────────────────
+
+    match /alerts/{alertId} {
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow read: if isSignedIn() && (
+        resource.data.user_id == request.auth.uid || 
+        isGuardianForUser(resource.data.user_id) || 
+        isAdmin()
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Routes Collection ────────────────────────────────────────────────────
+
+    match /routes/{routeId} {
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow read, update, delete: if isSignedIn() && (
+        resource.data.user_id == request.auth.uid || 
+        isAdmin()
+      );
+    }
+
+    // ── Area Memory Collection ───────────────────────────────────────────────
+
+    match /area_memory/{geoHash} {
+      // Anyone authenticated can read known hazards
+      allow read: if isSignedIn();
+      
+      // Only backend (Admin SDK passes security rules automatically) can write
+      // Clients cannot write to area_memory directly
+      allow write: if false; 
+    }
+
+    // ── SOS Events Collection ────────────────────────────────────────────────
+
+    match /sos_events/{sosId} {
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow read, update: if isSignedIn() && (
+        resource.data.user_id == request.auth.uid || 
+        isGuardianForUser(resource.data.user_id) || 
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}
