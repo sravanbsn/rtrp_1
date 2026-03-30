@@ -1,7 +1,7 @@
 # ==========================================
 # Production Dockerfile with Security Best Practices
 # ==========================================
-FROM python:3.10-slim as builder
+FROM python:3.11-slim as builder
 
 # Setup virtual environment
 ENV VIRTUAL_ENV=/opt/venv
@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.prod.txt
 # ==========================================
 # Final Production Stage - Security Hardened
 # ==========================================
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # Create non-root user for security
 RUN groupadd -r drishti && useradd -r -g drishti drishti
