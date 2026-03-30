@@ -13,21 +13,19 @@ class Settings(BaseSettings):
     
     # Redis
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
-    REDIS_ENABLED: bool = Field(default=False, description="Set True to enable Redis caching. Falls back to in-memory if False or unavailable.")
+    REDIS_ENABLED: bool = Field(default=False)
     
     # App
     APP_ENV: str = Field(default="development")
     DEBUG: bool = Field(default=True)
-    PORT: int = Field(default=8000)
+    PORT: int = Field(default=8080)
     APP_VERSION: str = Field(default="1.0.0")
     
     # Firebase
     FIREBASE_PROJECT_ID: str = Field(default="drishti-link")
     FIREBASE_CREDENTIALS_PATH: str = Field(default="firebase-service-account.json")
-    FIREBASE_SERVICE_ACCOUNT_JSON: str = Field(default="", description="Base64 encoded service account JSON")
-    FIREBASE_DATABASE_URL: str = Field(
-        default="https://drishti-link-default-rtdb.asia-southeast1.firebasedatabase.app"
-    )
+    FIREBASE_SERVICE_ACCOUNT_JSON: str = Field(default="")
+    FIREBASE_DATABASE_URL: str = Field(default="https://drishti-link-default-rtdb.asia-southeast1.firebasedatabase.app")
     FIREBASE_STORAGE_BUCKET: str = Field(default="drishti-link.firebasestorage.app")
     
     # Notifications
@@ -37,9 +35,8 @@ class Settings(BaseSettings):
     TWILIO_WHATSAPP_FROM: str = Field(default="whatsapp:dummy_phone")
     
     # Security
-    ALLOWED_ORIGINS: str = Field(
-        default="http://localhost:3000,https://drishti-link.web.app"
-    )
+    ALLOWED_ORIGINS: str = Field(default="http://localhost:3000,https://drishti-link.web.app")
+
     # AI Models
     YOLO_MODEL_PATH: str = Field(default="ml/models/yolov8_indian_streets_v1.pt")
     YOLO_CONFIDENCE: float = Field(default=0.45)
@@ -61,7 +58,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=True,
+        case_sensitive=False,
         extra="allow"
     )
 
@@ -69,8 +66,6 @@ class Settings(BaseSettings):
     def cors_origins(self) -> list[str]:
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
-
-# Initialize early to throw validation errors synchronously at startup
 try:
     settings = Settings()
 except Exception as e:
