@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "web: gunicorn main:app --bind 0.0.0.0:$PORT --workers 4 --keep-alive 2"
+startCommand = "gunicorn main:app --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class uvicorn.workers.UvicornWorker --keep-alive 2 --timeout 120 --graceful-timeout 30"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
@@ -12,5 +12,5 @@ restartPolicyMaxRetries = 10
 [env]
 APP_ENV = "production"
 DEBUG = "False"
-# Note: Database URLs and Base64 JSON keys must be defined 
+# Note: Database URLs and Base64 JSON keys must be defined
 # strictly within the Railway Dashboard UI variables tab.
