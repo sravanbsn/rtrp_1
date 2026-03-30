@@ -61,17 +61,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD curl -f http://localhost:$PORT/health || exit 1
 
 # Run with gunicorn for production scaling
-CMD gunicorn main:app \
-     --bind 0.0.0.0:$PORT \
-     --workers 1 \
-     --worker-class uvicorn.workers.UvicornWorker \
-     --worker-tmp-dir /dev/shm \
-     --max-requests 1000 \
-     --max-requests-jitter 50 \
-     --preload \
-     --access-logfile - \
-     --error-logfile - \
-     --log-level info \
-     --timeout 120 \
-     --keep-alive 2 \
-     --graceful-timeout 30
+CMD ["sh", "-c", "gunicorn main:app --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class uvicorn.workers.UvicornWorker --keep-alive 2"]
