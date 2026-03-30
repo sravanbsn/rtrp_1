@@ -34,7 +34,7 @@ google-cloud-storage==2.19.0
 
 # ─── Notifications ───────────────────────────────────────────────
 twilio==9.4.3            # SMS + WhatsApp
-python-firebase-admin==0.2.1
+bcrypt==3.2.2            # Pinned to prevent Passlib init crash
 
 # ─── Auth / Security ──────────────────────────────────────────────
 python-jose[cryptography]==3.3.0
