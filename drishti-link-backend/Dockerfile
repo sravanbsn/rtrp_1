@@ -53,12 +53,12 @@ COPY --chown=drishti:drishti . .
 # Switch to non-root user
 USER drishti
 
-# Expose railway/docker port
-EXPOSE 8000
+# Expose port
+EXPOSE 8080
 
-# Health check dynamic
+# Health check using fixed port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-    CMD curl -f http://localhost:$PORT/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Run with gunicorn for production scaling
+# Run with gunicorn
 CMD gunicorn main:app --bind 0.0.0.0:${PORT:-8080} --workers 4 --worker-class uvicorn.workers.UvicornWorker --keep-alive 2
