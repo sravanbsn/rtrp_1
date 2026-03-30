@@ -138,13 +138,8 @@ app = create_app()
 
 
 # ── Dev entrypoint ────────────────────────────────────────────────
+import os
+port = int(os.environ.get("PORT", 8000))
+
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=settings.PORT,
-        reload=settings.APP_ENV == "development",
-        log_config=None,  # structlog handles logging
-        access_log=False,
-        workers=1 if settings.APP_ENV == "development" else 4,
-    )
+    uvicorn.run(app, host="0.0.0.0", port=port)

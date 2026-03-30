@@ -61,4 +61,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 # Run with gunicorn
-CMD gunicorn main:app --bind 0.0.0.0:${PORT:-8080} --workers 4 --worker-class uvicorn.workers.UvicornWorker --keep-alive 2
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
