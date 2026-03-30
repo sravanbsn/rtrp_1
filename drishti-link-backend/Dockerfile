@@ -57,13 +57,13 @@ USER drishti
 EXPOSE 8000
 
 # Health check dynamic
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
 # Run with gunicorn for production scaling
 CMD gunicorn main:app \
      --bind 0.0.0.0:${PORT:-8000} \
-     --workers 4 \
+     --workers 1 \
      --worker-class uvicorn.workers.UvicornWorker \
      --worker-tmp-dir /dev/shm \
      --max-requests 1000 \
