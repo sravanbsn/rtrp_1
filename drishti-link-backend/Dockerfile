@@ -58,11 +58,11 @@ EXPOSE 8000
 
 # Health check dynamic
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+    CMD curl -f http://localhost:$PORT/health || exit 1
 
 # Run with gunicorn for production scaling
 CMD gunicorn main:app \
-     --bind 0.0.0.0:${PORT:-8000} \
+     --bind 0.0.0.0:$PORT \
      --workers 1 \
      --worker-class uvicorn.workers.UvicornWorker \
      --worker-tmp-dir /dev/shm \
