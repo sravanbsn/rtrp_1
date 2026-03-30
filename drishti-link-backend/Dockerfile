@@ -73,5 +73,5 @@ CMD gunicorn main:app \
      --error-logfile - \
      --log-level info \
      --timeout 120 \
-     --keepalive 2 \
+     --keep-alive 2 \
      --graceful-timeout 30
