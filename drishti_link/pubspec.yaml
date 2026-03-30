@@ -10,35 +10,60 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Voice / TTS
-  flutter_tts: ^4.0.2
-  speech_to_text: ^6.6.2
+  # ── Firebase ────────────────────────────────────────────────────
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.17.9
+  cloud_firestore: ^4.15.9
+  firebase_database: ^10.4.9
+  firebase_messaging: ^14.7.19
 
-  # Connectivity / Network
+  # ── Google Sign-In ──────────────────────────────────────────────
+  google_sign_in: ^6.2.1
+
+  # ── Navigation ──────────────────────────────────────────────────
+  go_router: ^13.2.0
+
+  # ── Network / Real-time ─────────────────────────────────────────
+  web_socket_channel: ^2.4.0
   connectivity_plus: ^5.0.0
+  http: ^1.2.0
 
-  # Animations
+  # ── Location ────────────────────────────────────────────────────
+  geolocator: ^11.0.0
+
+  # ── Secure Storage ──────────────────────────────────────────────
+  flutter_secure_storage: ^9.0.0
+
+  # ── Utilities ───────────────────────────────────────────────────
+  uuid: ^4.3.3
+  intl: ^0.19.0
+
+  # ── Voice / TTS ─────────────────────────────────────────────────
+  flutter_tts: ^4.0.2
+  speech_to_text: ^6.6.0
+
+  # ── Animations ──────────────────────────────────────────────────
   flutter_animate: ^4.5.0
 
-  # Onboarding UI
+  # ── Onboarding UI ───────────────────────────────────────────────
   smooth_page_indicator: ^1.1.0
 
-  # Typography
+  # ── Typography ──────────────────────────────────────────────────
   google_fonts: ^6.2.1
 
-  # State
+  # ── State management ────────────────────────────────────────────
   provider: ^6.1.2
 
-  # Biometric authentication (fingerprint + Face ID)
+  # ── Biometric auth (fingerprint + Face ID) ──────────────────────
   local_auth: ^2.1.8
 
-  # Runtime permissions (camera, location)
+  # ── Runtime permissions (camera, location) ──────────────────────
   permission_handler: ^11.3.0
 
-  # Haptic / vibration alerts
+  # ── Haptic / vibration alerts ───────────────────────────────────
   vibration: ^2.0.0
 
-  # Camera feed (live obstacle detection)
+  # ── Camera feed (live obstacle detection) ───────────────────────
   camera: ^0.10.5+9
 
 dev_dependencies:

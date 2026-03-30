@@ -5,7 +5,8 @@ import 'package:provider/provider.dart';
 /// Global connectivity provider for monitoring network status
 /// Shows 'No Internet' snackbar when connection is lost
 class ConnectivityProvider extends ChangeNotifier {
-  static final ConnectivityProvider _instance = ConnectivityProvider._internal();
+  static final ConnectivityProvider _instance =
+      ConnectivityProvider._internal();
   factory ConnectivityProvider() => _instance;
   ConnectivityProvider._internal();
 
@@ -20,12 +21,12 @@ class ConnectivityProvider extends ChangeNotifier {
   void initialize() {
     // Check initial connection status
     _checkInitialConnection();
-    
+
     // Listen for connectivity changes
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       _connectionStatus = result;
       notifyListeners();
-      
+
       // Show/hide offline message based on connection status
       _handleConnectionChange(result);
     });
@@ -58,11 +59,11 @@ class ConnectivityProvider extends ChangeNotifier {
     if (!_isShowingOfflineMessage) {
       _isShowingOfflineMessage = true;
       notifyListeners();
-      
+
       // Get current context (this needs to be called from a widget context)
       final context = _currentContext;
       if (context != null) {
-        ScaffoldMessenger.of(context!).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Row(
               children: [
@@ -95,11 +96,11 @@ class ConnectivityProvider extends ChangeNotifier {
     if (_isShowingOfflineMessage) {
       _isShowingOfflineMessage = false;
       notifyListeners();
-      
+
       // Hide any existing snackbars
       final context = _currentContext;
       if (context != null) {
-        ScaffoldMessenger.of(context!).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
     }
   }
@@ -155,8 +156,7 @@ class ConnectivityProvider extends ChangeNotifier {
 
   /// Check if connection is suitable for navigation
   bool get isSuitableForNavigation {
-    return isConnected && 
-           _connectionStatus != ConnectivityResult.bluetooth;
+    return isConnected && _connectionStatus != ConnectivityResult.bluetooth;
   }
 }
 

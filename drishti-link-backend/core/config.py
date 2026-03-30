@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     
     # Redis
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
+    REDIS_ENABLED: bool = Field(default=False, description="Set True to enable Redis caching. Falls back to in-memory if False or unavailable.")
     
     # App
     APP_ENV: str = Field(default="development")

@@ -30,18 +30,23 @@ class FirebaseAdminService:
             # Try file path first, then base64
             cred_path = settings.FIREBASE_CREDENTIALS_PATH
             if os.path.exists(cred_path):
-                cred = credentials.Certificate(cred_path)
+                # Read file, fix PEM key newlines, re-init from dict
+                with open(cred_path, 'r') as f:
+                    cred_dict = json.load(f)
+                cred_dict = cls._fix_private_key(cred_dict)
+                cred = credentials.Certificate(cred_dict)
                 logger.info(f"Using Firebase credentials from file: {cred_path}")
             elif settings.FIREBASE_SERVICE_ACCOUNT_JSON:
                 # Decode Base64 JSON
                 b64_str = settings.FIREBASE_SERVICE_ACCOUNT_JSON
                 json_str = base64.b64decode(b64_str).decode('utf-8')
                 cred_dict = json.loads(json_str)
+                cred_dict = cls._fix_private_key(cred_dict)
                 cred = credentials.Certificate(cred_dict)
                 logger.info("Using Firebase credentials from base64 environment variable")
             else:
                 raise ValueError("No Firebase credentials provided - neither file nor base64 JSON")
-            
+
             firebase_admin.initialize_app(cred, {
                 'databaseURL': settings.FIREBASE_DATABASE_URL,
                 'projectId': settings.FIREBASE_PROJECT_ID
@@ -54,6 +59,22 @@ class FirebaseAdminService:
         except Exception as e:
             logger.critical(f"❌ Failed to initialize Firebase Admin: {e}")
             raise
+
+    @staticmethod
+    def _fix_private_key(cred_dict: dict) -> dict:
+        """
+        Fix PEM key format: replace literal '\\n' escape sequences
+        with actual newline characters. This is the #1 cause of
+        Firebase initialization failures when keys come from env vars
+        or JSON files that encode newlines as the two-character string.
+        """
+        if 'private_key' in cred_dict:
+            pk = cred_dict['private_key']
+            # Replace both escaped forms: \\n (from double-encoding) and \n literal
+            pk = pk.replace('\\n', '\n')
+            cred_dict['private_key'] = pk
+            logger.debug("Firebase private key newlines normalized.")
+        return cred_dict
 
     # --- Firestore Operations ---
 

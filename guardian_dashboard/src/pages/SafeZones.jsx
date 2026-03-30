@@ -1,4 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '../config/firebase'
+import { useAuth } from '../contexts/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Plus, Edit2, Trash2, X } from 'lucide-react'
 import Navbar  from '../components/Navbar'
@@ -145,6 +148,7 @@ function AddZoneForm({ pendingPin, onSave, onCancel }) {
 
 // ── Safe Zones Page ──────────────────────────────────────────────
 export default function SafeZones() {
+  const { currentUser } = useAuth()
   const [activeUser,  setActiveUser]  = useState(DEFAULT_USER)
   const [zones,       setZones]       = useState(INITIAL_ZONES)
   const [selected,    setSelected]    = useState(null)
@@ -152,6 +156,26 @@ export default function SafeZones() {
   const [pendingPin,  setPendingPin]  = useState(null)
   const [outsideTime, setOutsideTime] = useState('10 min')
   const mapRef = useRef()
+
+  // ── Load from Firestore on mount ────────────────────────────────
+  useEffect(() => {
+    if (!currentUser) return
+    const ref = doc(db, 'safe_zones', currentUser.uid)
+    getDoc(ref).then(snap => {
+      if (snap.exists() && snap.data().zones?.length > 0) {
+        setZones(snap.data().zones.map(z => ({ ...z, id: z.id || Date.now() })))
+      }
+    }).catch(console.warn)
+  }, [currentUser])
+
+  // ── Persist zones to Firestore ──────────────────────────────────
+  const persistZones = useCallback(async (updatedZones) => {
+    if (!currentUser) return
+    try {
+      const ref = doc(db, 'safe_zones', currentUser.uid)
+      await setDoc(ref, { uid: currentUser.uid, zones: updatedZones, updated_at: serverTimestamp() }, { merge: true })
+    } catch (err) { console.warn('Failed to persist zones:', err) }
+  }, [currentUser])
 
   const handleMapClick = (e) => {
     if (!mapRef.current || showForm) return
@@ -168,17 +192,22 @@ export default function SafeZones() {
                 : color === '#7C3AED' ? '🛒' : color === '#E8871A' ? '🏪'
                 : color === '#DC2626' ? '🏥' : '📍'
     const position = pendingPin || { x: 50, y: 50 }
-    setZones(prev => [...prev, {
-      id: Date.now(), name, address, radius, color,
-      alert: alertT, emoji,
+    const newZone = {
+      id: Date.now(), name, address: address || 'Dropped pin location',
+      radius, color, alert: alertT, emoji,
       x: position.x, y: position.y,
-    }])
+    }
+    const updated = [...zones, newZone]
+    setZones(updated)
+    persistZones(updated)
     setShowForm(false)
     setPendingPin(null)
   }
 
   const handleDelete = (id) => {
-    setZones(prev => prev.filter(z => z.id !== id))
+    const updated = zones.filter(z => z.id !== id)
+    setZones(updated)
+    persistZones(updated)
     if (selected === id) setSelected(null)
   }
 
