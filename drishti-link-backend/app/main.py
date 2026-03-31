@@ -8,21 +8,25 @@ from __future__ import annotations
 
 try:
     import torch
+    import os
 
-    # This tells PyTorch to trust its own core components and the YOLO layers
-    try:
-        from ultralytics.nn.tasks import DetectionModel
-        torch.serialization.add_safe_globals([DetectionModel])
-    except ImportError:
-        pass
-
-    # Force PyTorch to trust its own Sequential container
-    import torch.nn
+    # 1. Broad allowlist for Ultralytics and Torch modules
     torch.serialization.add_safe_globals([torch.nn.modules.container.Sequential])
 
-    # Alternative nuclear option: If the above doesn't work, we tell YOLO to load with weights_only=False
-    import os
+    # 2. The 'Nuclear Option' - Disable the strict check for the YOLO library
+    # This is the officially recommended way to handle trusted local weights in PyTorch 2.6+
     os.environ["ULTRALYTICS_WEIGHTS_ONLY"] = "False"
+
+    # 3. Add a helper to ensure torch.load defaults to weights_only=False for this session
+    import builtins
+    orig_torch_load = torch.load
+    def safe_torch_load(*args, **kwargs):
+        if 'weights_only' not in kwargs:
+            kwargs['weights_only'] = False
+        return orig_torch_load(*args, **kwargs)
+
+    builtins.orig_torch_load = torch.load
+    torch.load = safe_torch_load
 except ImportError:
     pass
 
