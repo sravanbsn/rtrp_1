@@ -93,3 +93,4 @@ venv/
 .venv/
 *.apk
 drishti_secrets.txt
+*.bin
