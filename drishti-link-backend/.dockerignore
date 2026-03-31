@@ -94,3 +94,9 @@ venv/
 *.apk
 drishti_secrets.txt
 *.bin
+
+# Aggressive cache mitigation
+**/__pycache__
+**/.venv
+**/*.apk
+**/test*

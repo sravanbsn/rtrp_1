@@ -2,6 +2,8 @@
 torch
 torchvision
 torchaudio
+opencv-python-headless
+mediapipe>=0.10.30
 
 # ─── Web Framework ────────────────────────────────────────────────
 fastapi==0.115.6
@@ -24,8 +26,6 @@ aiofiles==24.1.0
 
 # ─── AI / Computer Vision ─────────────────────────────────────────
 ultralytics==8.3.53      # YOLOv8
-opencv-python-headless==4.10.0.84
-mediapipe>=0.10.30
 numpy==1.26.4
 Pillow==11.0.0
 
