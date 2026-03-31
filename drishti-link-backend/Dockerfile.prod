@@ -17,7 +17,10 @@ RUN apt-get update && apt-get install -y \
     libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies in virtualenv (production only)
+# Install CPU-specific PyTorch strictly first to bypass massive CUDA downloads
+RUN pip install --no-cache-dir torch==2.5.1+cpu torchvision==0.20.1+cpu --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining python dependencies in virtualenv
 WORKDIR /app
 COPY requirements.prod.txt .
 RUN pip install --no-cache-dir -r requirements.prod.txt
