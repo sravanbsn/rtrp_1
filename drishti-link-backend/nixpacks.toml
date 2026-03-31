@@ -3,3 +3,6 @@ nixPkgs = ["python311", "libGL"]
 
 [phases.install]
 cmds = ["pip install --no-cache-dir -r requirements.txt"]
+
+[phases.build]
+cmds = ["rm -rf /root/.cache/pip"]
