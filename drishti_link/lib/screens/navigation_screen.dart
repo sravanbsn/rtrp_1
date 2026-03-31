@@ -12,8 +12,10 @@ import 'package:vibration/vibration.dart';
 import '../core/theme.dart';
 import '../services/voice_service.dart';
 import '../services/vision_service.dart';
+import '../services/sos_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
+import 'package:geolocator/geolocator.dart';
 
 // ── Navigation state ─────────────────────────────────────────────────────────
 
@@ -317,7 +319,40 @@ class _NavigationScreenState extends State<NavigationScreen>
     await context.read<VoiceService>().speak(
           'SOS bhej rahi hoon. Priya ko notify kar rahi hoon.',
         );
-    if (mounted) Navigator.pushNamed(context, '/sos');
+
+    // ── Lean SOS Integration: Phone → Railway → Dashboard ─────────
+    bool sosSent = false;
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).timeout(const Duration(seconds: 8));
+
+      // userId: real Firebase UID when logged in, fallback 'demo_user_123'
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      sosSent = await SosService.triggerSOS(
+        lat: position.latitude,
+        lng: position.longitude,
+        userId: userId,
+        sessionId: _sessionId,
+        guardianIds: const ['guardian_demo_id'], // hardcoded for lean demo
+      );
+    } catch (e) {
+      debugPrint('[NavigationScreen] SOS trigger error: $e');
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            sosSent ? '🆘 SOS sent to Railway ✓' : '⚠ SOS signal failed — check logs',
+          ),
+          backgroundColor: sosSent ? const Color(0xFF1B5E20) : const Color(0xFFB71C1C),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      Navigator.pushNamed(context, '/sos');
+    }
   }
 
   Future<void> _stopNavigation() async {

@@ -11,6 +11,7 @@ import LiveFeed  from '../components/LiveFeed'
 import SosOverlay from '../components/SosOverlay'
 import { rtdb, db } from '../config/firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { resolveSos } from '../services/sosService'
 import '../dashboard.css'
 
 const DEFAULT_USER = { id: 1, initials: 'AR', name: 'Arjun Sharma', status: 'Offline', color: '#E8871A' }
@@ -104,7 +105,24 @@ export default function Dashboard() {
 
   const handleDismissPopup  = useCallback(() => setShowPopup(false), [])
   const handleSOS           = useCallback(() => { setShowSOS(true); setShowPopup(false) }, [])
-  const handleAcknowledge   = useCallback(() => { setShowSOS(false); sosRef.current = false }, [])
+  const handleAcknowledge = useCallback(async () => {
+    if (sessionData?.sos_alert_id) {
+      try {
+        // Call Railway directly — it resets RTDB status to 'navigating'
+        await resolveSos(
+          sessionData.sos_alert_id,
+          guardianProfile?.linked_user_uid ?? '',
+          'guardian'
+        )
+        toast.success('Response confirmed. User is being notified.')
+      } catch (err) {
+        console.warn('resolveSos Railway call failed:', err)
+        toast.error('Failed to sync with Railway backend.')
+      }
+    }
+    setShowSOS(false)
+    sosRef.current = false
+  }, [sessionData, guardianProfile])
 
   // ── No user linked state ───────────────────────────────────────
   if (noUserLinked) {
