@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies for OpenCV and MediaPipe
+# 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
@@ -11,20 +11,35 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
+# 2. Force install the specific version of Protobuf that both need
+RUN pip install --no-cache-dir protobuf==3.20.3
 
-# Install EVERYTHING globally with no-cache to keep it under 1GB
-# We install ultralytics explicitly to ensure YOLOv8 works
+# 3. Install AI libraries (using the legacy resolver to ignore the warning)
 RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
     torch torchvision torchaudio
-    
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# 4. Install the rest of the stack
+RUN pip install --no-cache-dir \
+    ultralytics==8.1.0 \
+    mediapipe==0.10.9 \
+    opencv-python-headless \
+    fastapi \
+    uvicorn \
+    pydantic-settings \
+    structlog \
+    cachetools \
+    python-multipart \
+    psycopg2-binary \
+    redis \
+    firebase-admin \
+    twilio \
+    "python-jose[cryptography]" \
+    "passlib[bcrypt]" \
+    python-dotenv
+
+# 5. Copy application code
 COPY . .
 
-# Set environment variables to ensure Python finds the libraries
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
