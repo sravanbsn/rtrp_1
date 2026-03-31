@@ -2,6 +2,7 @@ import { doc, updateDoc, collection, addDoc, deleteDoc, serverTimestamp } from '
 import { ref, update } from 'firebase/database';
 import { db, rtdb } from '../config/firebase';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { API_CONFIG } from '../config/apiConfig';
 
 export const updateNotificationPreferences = async (guardianId, newPrefs) => {
   try {
@@ -56,24 +57,24 @@ export const removeSafeZone = async (userId, zoneId) => {
   }
 };
 
-export const acknowledgeSOSResponse = async (sosId, sessionId, guardianId) => {
+export const acknowledgeSOSResponse = async (sosId, sessionId, guardianId, userId) => {
   try {
-    // 1. Update Firestore
-    const sosRef = doc(db, 'sos_events', sosId);
+    // 1. Call Backend to Resolve
+    const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.SOS_RESOLVE(sosId)}?user_id=${userId}&resolved_by=guardian`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend resolve failed: ${response.status}`);
+    }
+
+    // 2. Local Firestore update (backup/UI immediate feedback)
+    const sosRef = doc(db, 'alerts', sosId);
     await updateDoc(sosRef, {
-       guardian_responded_at: serverTimestamp()
+       guardian_responded_at: serverTimestamp(),
+       resolved: true
     });
-
-    // 2. Update RTDB (letting the mobile device know response is active)
-    const sessionRef = ref(rtdb, `live_sessions/${sessionId}`);
-    await update(sessionRef, {
-       'sos_status': 'guardian_en_route',
-       'guardian_eta_mins': 5, // placeholder logic
-       'updated_at': Date.now()
-    });
-
-    // NOTE: Cloud Function listens to `sos_events` update to trigger FCM to the user:
-    // "Guardian aa raha hai."
 
   } catch (error) {
      console.error("ACK SOS Error:", error);
