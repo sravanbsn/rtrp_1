@@ -151,7 +151,15 @@ class MediaPipeService:
     def _try_init_pose(self) -> None:
         """Attempt to load MediaPipe Pose. Gracefully degrades if unavailable."""
         try:
-            import mediapipe as mp
+            try:
+                import mediapipe as mp
+            except ImportError:
+                mp = None
+            
+            if mp is None:
+                self._pose_available = False
+                log.warning("mediapipe.unavailable", fallback="heuristic_mode")
+                return
             self._mp_pose    = mp.solutions.pose
             self._pose_model = self._mp_pose.Pose(
                 static_image_mode=False,

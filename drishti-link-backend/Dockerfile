@@ -2,27 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# 1. Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# 2. Force install the specific version of Protobuf that both need
-RUN pip install --no-cache-dir protobuf==3.20.3
+COPY requirements.txt .
 
-# 3. Install AI libraries (using the legacy resolver to ignore the warning)
-RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
-    torch torchvision torchaudio
-
-# 4. Install the rest of the stack
 RUN pip install --no-cache-dir \
-    ultralytics==8.1.0 \
-    mediapipe==0.10.9 \
-    opencv-python-headless \
     fastapi \
     uvicorn \
     pydantic-settings \
@@ -37,7 +21,6 @@ RUN pip install --no-cache-dir \
     "passlib[bcrypt]" \
     python-dotenv
 
-# 5. Copy application code
 COPY . .
 
 ENV PYTHONUNBUFFERED=1

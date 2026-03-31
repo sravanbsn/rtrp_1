@@ -252,7 +252,15 @@ class YOLOService:
     def load_sync(self, path: Optional[str] = None) -> None:
         """Blocking model load — called once from thread pool at startup."""
         try:
-            from ultralytics import YOLO
+            try:
+                from ultralytics import YOLO
+            except ImportError:
+                YOLO = None
+            
+            if YOLO is None:
+                self._is_ready = False
+                log.warning("yolo.unavailable", fallback="mock_mode")
+                return
             
             if path is None:
                 path_obj = Path(self._model_path)
