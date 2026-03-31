@@ -83,3 +83,13 @@ docker-compose.yml
 docker-compose.override.yml
 .Dockerfile
 dockerfile.local
+
+# Added per explicit backend optimizations
+__pycache__/
+*.pyc
+.git/
+.env
+venv/
+.venv/
+*.apk
+drishti_secrets.txt
