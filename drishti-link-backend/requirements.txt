@@ -1,4 +1,13 @@
 fastapi
 uvicorn
+python-multipart
+psycopg2-binary
+redis
+firebase-admin
+twilio
 structlog
 pydantic-settings
+cachetools
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv

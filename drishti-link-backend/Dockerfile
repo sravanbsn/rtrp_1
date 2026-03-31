@@ -6,7 +6,8 @@ COPY requirements.txt .
 # Install CPU-only versions to a specific directory
 RUN pip install --user --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
     torch torchvision torchaudio opencv-python-headless mediapipe fastapi uvicorn \
-    python-multipart psycopg2-binary redis firebase-admin twilio structlog pydantic-settings
+    python-multipart psycopg2-binary redis firebase-admin twilio structlog pydantic-settings \
+    cachetools "python-jose[cryptography]" "passlib[bcrypt]" python-dotenv
 
 # Stage 2: Final Tiny Image
 FROM python:3.11-slim
