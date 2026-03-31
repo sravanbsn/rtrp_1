@@ -6,6 +6,13 @@ assistance for visually impaired users.
 
 from __future__ import annotations
 
+try:
+    import torch
+    from ultralytics.nn.tasks import DetectionModel
+    torch.serialization.add_safe_globals([DetectionModel])
+except ImportError:
+    pass
+
 import time
 import uuid
 from contextlib import asynccontextmanager
