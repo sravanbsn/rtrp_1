@@ -1,5 +1,5 @@
 # ==========================================
-# Production Dockerfile with Security Best Practices
+# Production Dockerfile optimized for CPU and Headless AI
 # ==========================================
 FROM python:3.11-slim as builder
 
@@ -8,17 +8,17 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Install system dependencies required for OpenCV
-RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1 \
+# Install basic dependencies (headless doesn't need libglib2.0 etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CPU-specific PyTorch strictly first to bypass massive CUDA downloads
-RUN pip install --no-cache-dir torch==2.5.1+cpu torchvision==0.20.1+cpu --index-url https://download.pytorch.org/whl/cpu
+# Force CPU-only PyTorch first
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision torchaudio
+
+# Install Headless AI packages
+RUN pip install --no-cache-dir opencv-python-headless mediapipe
 
 # Install remaining python dependencies in virtualenv
 WORKDIR /app
@@ -33,16 +33,10 @@ FROM python:3.11-slim
 # Create non-root user for security
 RUN groupadd -r drishti && useradd -r -g drishti drishti
 
-# Install runtime system dependencies
-RUN apt-get update && apt-get install -y \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgl1 \
+# Install runtime system dependencies and clean apt cache
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy virtual env from builder
 COPY --from=builder /opt/venv /opt/venv
@@ -59,11 +53,11 @@ COPY --chown=drishti:drishti . .
 USER drishti
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8000
 
-# Health check using fixed port
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
 
-# Run with gunicorn
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
+# Run with gunicorn and uvicorn worker
+CMD ["sh", "-c", "gunicorn app.main:app --bind 0.0.0.0:${PORT:-8000} --workers 4 --worker-class uvicorn.workers.UvicornWorker --keep-alive 2"]
