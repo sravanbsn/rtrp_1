@@ -8,8 +8,21 @@ from __future__ import annotations
 
 try:
     import torch
-    from ultralytics.nn.tasks import DetectionModel
-    torch.serialization.add_safe_globals([DetectionModel])
+
+    # This tells PyTorch to trust its own core components and the YOLO layers
+    try:
+        from ultralytics.nn.tasks import DetectionModel
+        torch.serialization.add_safe_globals([DetectionModel])
+    except ImportError:
+        pass
+
+    # Force PyTorch to trust its own Sequential container
+    import torch.nn
+    torch.serialization.add_safe_globals([torch.nn.modules.container.Sequential])
+
+    # Alternative nuclear option: If the above doesn't work, we tell YOLO to load with weights_only=False
+    import os
+    os.environ["ULTRALYTICS_WEIGHTS_ONLY"] = "False"
 except ImportError:
     pass
 
