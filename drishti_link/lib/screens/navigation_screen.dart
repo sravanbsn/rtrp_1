@@ -11,6 +11,9 @@ import 'package:vibration/vibration.dart';
 
 import '../core/theme.dart';
 import '../services/voice_service.dart';
+import '../services/vision_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
 
 // ── Navigation state ─────────────────────────────────────────────────────────
 
@@ -32,42 +35,7 @@ class _HazardEvent {
   });
 }
 
-// ── Simulated hazard sequence (replace with real ML pipeline) ────────────────
-
-final _demoSequence = [
-  (
-    delay: 4000,
-    state: NavAlertState.warning,
-    desc: 'POTHOLE — 4 meter aage',
-    dist: '4m',
-    voice: 'Arjun, thoda dhyan. Pothole hai. Left chalo.',
-    haptic: 'left'
-  ),
-  (
-    delay: 8000,
-    state: NavAlertState.clear,
-    desc: '',
-    dist: '',
-    voice: '',
-    haptic: ''
-  ),
-  (
-    delay: 12000,
-    state: NavAlertState.danger,
-    desc: 'RUKO — Gaadi aa rahi hai',
-    dist: '6m',
-    voice: 'Ruko Arjun. Gaadi aa rahi hai.',
-    haptic: 'stop'
-  ),
-  (
-    delay: 17000,
-    state: NavAlertState.clear,
-    desc: '',
-    dist: '',
-    voice: 'Ab safe hai. Chalo.',
-    haptic: 'go'
-  ),
-];
+// ── Live ML Pipeline ─────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
 // NAVIGATION SCREEN
@@ -125,8 +93,10 @@ class _NavigationScreenState extends State<NavigationScreen>
   bool _isListening = false;
   bool _paused = false;
 
-  // ── Demo timers ──────────────────────────────────────────────────
-  final List<Timer> _demoTimers = [];
+  // ── Live ML tracking ──────────────────────────────────────────────────
+  final String _sessionId = const Uuid().v4();
+  Timer? _frameTimer;
+  bool _isAnalyzing = false;
 
   @override
   void initState() {
@@ -146,7 +116,7 @@ class _NavigationScreenState extends State<NavigationScreen>
     await context
         .read<VoiceService>()
         .speak('Theek hai. Main taiyaar hoon. Chalo.');
-    _startDemoSequence();
+    _startLiveVisionLoop();
     _listenLoop();
   }
 
@@ -223,21 +193,50 @@ class _NavigationScreenState extends State<NavigationScreen>
     }
   }
 
-  // ── Demo sequence (replace with real AI events) ────────────────
-  void _startDemoSequence() {
-    for (final step in _demoSequence) {
-      final t = Timer(Duration(milliseconds: step.delay), () async {
-        if (!mounted) return;
-        await _applyAlertState(
-          step.state,
-          step.desc,
-          step.dist,
-          step.voice,
-          step.haptic,
+  // ── Live backend integration ───────────────────────────────────────
+  void _startLiveVisionLoop() {
+    _frameTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      if (!mounted || _paused || _isAnalyzing || !_cameraReady || _camera == null) return;
+      _isAnalyzing = true;
+      try {
+        final xFile = await _camera!.takePicture();
+        final userId = FirebaseAuth.instance.currentUser?.uid ?? 'guest_fallback_id';
+
+        final response = await VisionService.analyzeImage(
+          image: xFile,
+          userId: userId,
+          sessionId: _sessionId,
+          lat: 0.0,
+          lng: 0.0,
         );
-      });
-      _demoTimers.add(t);
-    }
+
+        if (response != null && mounted && !_paused) {
+          NavAlertState state = NavAlertState.clear;
+          if (response.overallPc >= 65) {
+             state = NavAlertState.danger;
+          } else if (response.overallPc >= 30) {
+             state = NavAlertState.warning;
+          }
+
+          // Generate description
+          String desc = state == NavAlertState.clear ? 'Clear' : response.ttsMessage;
+          if (desc.isEmpty && state != NavAlertState.clear) desc = 'Hazard Detected';
+
+          await _applyAlertState(
+             state,
+             desc,
+             response.hazards.isNotEmpty ? '${response.hazards.first['distance_m']}m' : '',
+             response.ttsMessage,
+             response.shouldOverride ? 'stop' : (state == NavAlertState.clear ? 'go' : 'left'),
+             backendPc: response.overallPc,
+          );
+        }
+      } catch (e) {
+        debugPrint('Vision Loop Error: $e');
+      } finally {
+        if (mounted) _isAnalyzing = false;
+      }
+    });
   }
 
   Future<void> _applyAlertState(
@@ -246,6 +245,7 @@ class _NavigationScreenState extends State<NavigationScreen>
     String dist,
     String voice,
     String hapticType,
+    {int backendPc = 0}
   ) async {
     if (!mounted) return;
 
@@ -253,9 +253,7 @@ class _NavigationScreenState extends State<NavigationScreen>
       _alertState = state;
       _alertDesc = desc;
       _alertVisible = state != NavAlertState.clear;
-      if (state == NavAlertState.warning) _collisionScore = 48;
-      if (state == NavAlertState.danger) _collisionScore = 87;
-      if (state == NavAlertState.clear) _collisionScore = 12;
+      _collisionScore = backendPc;
     });
 
     if (state == NavAlertState.danger) {
@@ -334,9 +332,7 @@ class _NavigationScreenState extends State<NavigationScreen>
     _rippleCtrl.dispose();
     _camera?.dispose();
     _speech.stop();
-    for (final t in _demoTimers) {
-      t.cancel();
-    }
+    _frameTimer?.cancel();
     super.dispose();
   }
 
