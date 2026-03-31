@@ -123,7 +123,7 @@ async def toggle_favorite(route_id: str) -> SavedRoute:
 
 @router.delete(
     "/{route_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
+    status_code=status.HTTP_200_OK,
     summary="Delete a saved route",
 )
 async def delete_route(route_id: str) -> None:
