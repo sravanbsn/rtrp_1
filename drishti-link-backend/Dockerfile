@@ -21,7 +21,8 @@ RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/wh
     
 RUN pip install --no-cache-dir \
     ultralytics \
-    mediapipe \
+    mediapipe==0.10.9 \
+    protobuf==3.20.3 \
     opencv-python-headless \
     fastapi \
     uvicorn \
