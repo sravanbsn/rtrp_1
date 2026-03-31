@@ -1,1 +1,18 @@
-# Empty requirements.txt as per instructions. All installations are bypassed securely in the Dockerfile.
+fastapi==0.109.2
+uvicorn==0.27.1
+python-multipart==0.0.9
+psycopg2-binary==2.9.9
+redis==5.0.1
+firebase-admin==6.4.0
+google-api-core==2.17.1
+google-cloud-storage==2.14.0
+google-cloud-firestore==2.14.0
+twilio==8.13.0
+structlog==24.1.0
+pydantic-settings==2.1.0
+cachetools==5.3.2
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-dotenv==1.0.1
+ultralytics==8.1.0
+opencv-python-headless==4.9.0.80

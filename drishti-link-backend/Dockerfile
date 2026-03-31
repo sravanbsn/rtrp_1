@@ -2,24 +2,21 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir \
-    fastapi \
-    uvicorn \
-    pydantic-settings \
-    structlog \
-    cachetools \
-    python-multipart \
-    psycopg2-binary \
-    redis \
-    firebase-admin \
-    twilio \
-    "python-jose[cryptography]" \
-    "passlib[bcrypt]" \
-    python-dotenv
+# Pre-install CPU torch to prevent heavy GPU downloads from ultralytics
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu torch torchvision torchaudio
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
