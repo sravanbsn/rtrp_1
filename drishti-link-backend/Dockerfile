@@ -19,24 +19,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu \
     torch torchvision torchaudio
     
-RUN pip install --no-cache-dir \
-    ultralytics \
-    mediapipe==0.10.9 \
-    protobuf==3.20.3 \
-    opencv-python-headless \
-    fastapi \
-    uvicorn \
-    pydantic-settings \
-    structlog \
-    cachetools \
-    python-multipart \
-    psycopg2-binary \
-    redis \
-    firebase-admin \
-    twilio \
-    "python-jose[cryptography]" \
-    "passlib[bcrypt]" \
-    python-dotenv
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
 COPY . .
